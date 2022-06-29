@@ -48,9 +48,12 @@ object Player extends App {
           )
         }
 
-        System.err.println(
-          "Strategies scores: " + strategiesScores.toList.sortBy(_._2).reverse
-        )
+        System.err.println("Strategies scores:")
+
+        strategiesScores.toList.sortBy(_._2).reverse.foreach {
+          case (strategy, score) =>
+            System.err.println(s"${strategy.getClass.getSimpleName}: $score")
+        }
 
         strategiesScores.maxBy(_._2) match {
           case (strategy, score) =>
