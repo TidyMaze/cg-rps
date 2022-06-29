@@ -12,7 +12,7 @@ object Player extends App {
     new ScissorsStrategy,
     new CopyOpponentStrategy,
     new BeatLastOpponentStrategy,
-    new BeatMostOpponentStrategy
+    new BeatMostOpponentStrategyAll
   )
 
   def parse(raw: String): Option[Moves.Value] =
@@ -144,25 +144,27 @@ class BeatLastOpponentStrategy extends Strategy {
   )
 }
 
-class BeatMostOpponentStrategy extends Strategy {
-  var counts = Moves.values.map(_ -> 0).toMap
+class BeatMostOpponentStrategyAll extends Strategy {
 
   override def move(opponentHistory: List[Moves.Value]): Moves.Value = {
-    whoBeats(counts.maxBy(_._2)._1)
+    whoBeats(
+      opponentHistory
+        .groupBy(identity)
+        .map { case (move, moves) =>
+          (move, moves.length)
+        }
+        .maxBy(_._2)
+        ._1
+    )
   }
 
   override def getScore(
       opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
-  ): Double = {
-    counts = counts.map { case (move, count) =>
-      (move, count + (if (move == opponentHistory.last) 1 else 0))
-    }
-    score(
-      myLastMove,
-      opponentHistory.last
-    )
-  }
+  ): Double = score(
+    myLastMove,
+    opponentHistory.last
+  )
 }
 
 object Helpers {
