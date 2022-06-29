@@ -2,18 +2,26 @@ import math._
 import scala.util._
 import scala.io.StdIn._
 
-/** Auto-generated code below aims at helping you parse
-  * the standard input according to the problem statement.
-  */
 object Player extends App {
 
-  // game loop
+  val random = new Random()
+
+  def randomIn(values: Moves.ValueSet) = {
+    val index = random.nextInt(values.size)
+    values.toList(index)
+  }
+
   while (true) {
     val previousOpponentMove = readLine
 
-    // Write an action using println
-    // To debug: Console.err.println("Debug messages...")
+    // get random move
+    val move = randomIn(Moves.values)
 
-    println("ROCK")
+    println(move)
   }
+}
+
+object Moves extends Enumeration {
+  type Move = Value
+  val ROCK, PAPER, SCISSORS = Value
 }
