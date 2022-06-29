@@ -48,7 +48,7 @@ object Player extends App {
             System.err.println(
               s"Best strategy is ${strategy.getClass.getSimpleName} with score $score"
             )
-            strategy.move(opponentHistory)
+            strategy.move(h)
         }
       case other =>
         System.err.println("First turn")
