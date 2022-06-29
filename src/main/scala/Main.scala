@@ -1,4 +1,4 @@
-import Helpers.randomIn
+import Helpers.{random, randomIn}
 
 import scala.util._
 import scala.io.StdIn._
@@ -6,12 +6,13 @@ import scala.io.StdIn._
 object Player extends App {
   val allStrategies: Seq[Strategy] = Seq(new RandomStrategy)
 
-  def parse(readLine: String): Moves.Value =
-    readLine match {
-      case "ROCK"     => Moves.ROCK
-      case "PAPER"    => Moves.PAPER
-      case "SCISSORS" => Moves.SCISSORS
-      case _          => throw new IllegalArgumentException("Invalid move " + readLine)
+  def parse(raw: String): Option[Moves.Value] =
+    raw match {
+      case "rock"     => Some(Moves.ROCK)
+      case "paper"    => Some(Moves.PAPER)
+      case "scissors" => Some(Moves.SCISSORS)
+      case "None"     => None
+      case _          => throw new IllegalArgumentException("Invalid move " + raw)
     }
 
   var strategiesScores = allStrategies.map(_ -> 0.toDouble).toMap
@@ -19,13 +20,17 @@ object Player extends App {
   while (true) {
     val previousOpponentMove = parse(readLine)
 
-    strategiesScores = strategiesScores.map { case (strategy, score) =>
-      (strategy, score + strategy.getScore(previousOpponentMove))
+    val myMove = previousOpponentMove match {
+      case Some(move) =>
+        strategiesScores = strategiesScores.map { case (strategy, score) =>
+          (strategy, score + strategy.getScore(move))
+        }
+        strategiesScores.maxBy(_._2)._1.move(move)
+      case None =>
+        randomIn(Moves.values)
     }
 
-    val move = strategiesScores.maxBy(_._2)._1.move(previousOpponentMove)
-
-    println(move.toString)
+    println(myMove.toString)
   }
 }
 
