@@ -4,7 +4,12 @@ import scala.util._
 import scala.io.StdIn._
 
 object Player extends App {
-  val allStrategies: Seq[Strategy] = Seq(new RandomStrategy)
+  val allStrategies: Seq[Strategy] = Seq(
+    new RandomStrategy,
+    new RockStrategy,
+    new PaperStrategy,
+    new ScissorsStrategy
+  )
 
   def parse(raw: String): Option[Moves.Value] =
     raw match {
@@ -57,6 +62,29 @@ class RandomStrategy extends Strategy {
     randomIn(Moves.values)
 
   override def getScore(previousOpponentMove: Moves.Value): Double = 1.0 / 3.0
+}
+
+class RockStrategy extends Strategy {
+  override def move(previousOpponentMove: Moves.Value): Moves.Value = Moves.ROCK
+
+  override def getScore(previousOpponentMove: Moves.Value): Double =
+    if (previousOpponentMove == Moves.PAPER) 1.0 else 0.0
+}
+
+class PaperStrategy extends Strategy {
+  override def move(previousOpponentMove: Moves.Value): Moves.Value =
+    Moves.PAPER
+
+  override def getScore(previousOpponentMove: Moves.Value): Double =
+    if (previousOpponentMove == Moves.ROCK) 1.0 else 0.0
+}
+
+class ScissorsStrategy extends Strategy {
+  override def move(previousOpponentMove: Moves.Value): Moves.Value =
+    Moves.SCISSORS
+
+  override def getScore(previousOpponentMove: Moves.Value): Double =
+    if (previousOpponentMove == Moves.PAPER) 1.0 else 0.0
 }
 
 object Helpers {
