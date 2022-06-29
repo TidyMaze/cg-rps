@@ -273,6 +273,27 @@ class AloneCircleClockwiseStrategy extends Strategy {
   )
 }
 
+class AloneCircleCounterClockwiseStrategy extends Strategy {
+
+  override def move(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Moves.Value =
+    myHistory.last match {
+      case Moves.ROCK     => Moves.SCISSORS
+      case Moves.PAPER    => Moves.ROCK
+      case Moves.SCISSORS => Moves.PAPER
+    }
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Double = score(
+    this.move(opponentHistory.init, myHistory.init),
+    opponentHistory.last
+  )
+}
+
 object Helpers {
   val random = new Random()
 
