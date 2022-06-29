@@ -1,4 +1,5 @@
-import math._
+import Helpers.randomIn
+
 import scala.util._
 import scala.io.StdIn._
 
@@ -10,7 +11,7 @@ object Player extends App {
       case "ROCK"     => Moves.ROCK
       case "PAPER"    => Moves.PAPER
       case "SCISSORS" => Moves.SCISSORS
-      case _          => throw new IllegalArgumentException("Invalid move")
+      case _          => throw new IllegalArgumentException("Invalid move " + readLine)
     }
 
   var strategiesScores = allStrategies.map(_ -> 0.toDouble).toMap
@@ -24,7 +25,7 @@ object Player extends App {
 
     val move = strategiesScores.maxBy(_._2)._1.move(previousOpponentMove)
 
-    println(move)
+    println(move.toString)
   }
 }
 
@@ -40,18 +41,17 @@ trait Strategy {
 }
 
 class RandomStrategy extends Strategy {
-
-  val random = new Random()
-
-  override def move(previousOpponentMove: Moves.Value): Moves.Value = {
+  override def move(previousOpponentMove: Moves.Value): Moves.Value =
     randomIn(Moves.values)
 
-  }
+  override def getScore(previousOpponentMove: Moves.Value): Double = 1.0 / 3.0
+}
 
-  def randomIn(values: Moves.ValueSet) = {
+object Helpers {
+  val random = new Random()
+
+  def randomIn[T](values: Iterable[T]): T = {
     val index = random.nextInt(values.size)
     values.toList(index)
   }
-
-  override def getScore(previousOpponentMove: Moves.Value): Double = 1.0 / 3.0
 }
