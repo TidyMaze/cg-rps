@@ -44,6 +44,8 @@ object Player extends App {
         randomIn(Moves.values)
     }
 
+    maybeMyLastMove = Some(myMove)
+
     println(myMove.toString)
   }
 }
