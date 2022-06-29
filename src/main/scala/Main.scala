@@ -203,6 +203,20 @@ class BeatMostOpponentStrategy3 extends Strategy {
   )
 }
 
+class BeatMostOpponentStrategy4 extends Strategy {
+
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    whoBeats(mostOccuring(opponentHistory.take(4)))
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myLastMove: Moves.Value
+  ): Double = score(
+    this.move(opponentHistory.init.take(4)),
+    opponentHistory.last
+  )
+}
+
 object Helpers {
   val random = new Random()
 
