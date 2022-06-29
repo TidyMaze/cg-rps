@@ -142,20 +142,21 @@ class BeatMostOpponentStrategy extends Strategy {
   var counts = Moves.values.map(_ -> 0).toMap
 
   override def move(previousOpponentMove: Moves.Value): Moves.Value = {
-    counts = counts.map { case (move, count) =>
-      (move, count + (if (move == previousOpponentMove) 1 else 0))
-    }
-
     whoBeats(counts.maxBy(_._2)._1)
   }
 
   override def getScore(
       previousOpponentMove: Moves.Value,
       myLastMove: Moves.Value
-  ): Double = score(
-    myLastMove,
-    previousOpponentMove
-  )
+  ): Double = {
+    counts = counts.map { case (move, count) =>
+      (move, count + (if (move == previousOpponentMove) 1 else 0))
+    }
+    score(
+      myLastMove,
+      previousOpponentMove
+    )
+  }
 }
 
 object Helpers {
