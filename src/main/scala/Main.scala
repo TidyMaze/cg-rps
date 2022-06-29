@@ -36,7 +36,7 @@ object Player extends App {
     opponentHistory = opponentHistory ++ maybePreviousOpponentMove
 
     val myMove = (opponentHistory, maybeMyLastMove) match {
-      case (h, Some(myLastMove)) if h.nonEmpty =>
+      case (h, Some(myLastMove)) if h.length > 1 =>
         strategiesScores = strategiesScores.map { case (strategy, score) =>
           (
             strategy,
@@ -126,7 +126,7 @@ class CopyOpponentStrategy extends Strategy {
       opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = score(
-    myLastMove,
+    this.move(opponentHistory.init),
     opponentHistory.last
   )
 }
@@ -139,7 +139,7 @@ class BeatLastOpponentStrategy extends Strategy {
       opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = score(
-    myLastMove,
+    this.move(opponentHistory.init),
     opponentHistory.last
   )
 }
@@ -153,7 +153,7 @@ class BeatMostOpponentStrategyAll extends Strategy {
       opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = score(
-    myLastMove,
+    this.move(opponentHistory.init),
     opponentHistory.last
   )
 }
