@@ -1,4 +1,4 @@
-import Helpers.{random, randomIn}
+import Helpers.{random, randomIn, score}
 
 import scala.util._
 import scala.io.StdIn._
@@ -68,11 +68,7 @@ class RockStrategy extends Strategy {
   override def move(previousOpponentMove: Moves.Value): Moves.Value = Moves.ROCK
 
   override def getScore(previousOpponentMove: Moves.Value): Double =
-    previousOpponentMove match {
-      case Moves.ROCK     => 0
-      case Moves.PAPER    => -1
-      case Moves.SCISSORS => 1
-    }
+    score(Moves.ROCK, previousOpponentMove)
 }
 
 class PaperStrategy extends Strategy {
@@ -80,11 +76,7 @@ class PaperStrategy extends Strategy {
     Moves.PAPER
 
   override def getScore(previousOpponentMove: Moves.Value): Double =
-    previousOpponentMove match {
-      case Moves.ROCK     => 1
-      case Moves.PAPER    => 0
-      case Moves.SCISSORS => -1
-    }
+    score(Moves.PAPER, previousOpponentMove)
 }
 
 class ScissorsStrategy extends Strategy {
@@ -92,11 +84,7 @@ class ScissorsStrategy extends Strategy {
     Moves.SCISSORS
 
   override def getScore(previousOpponentMove: Moves.Value): Double =
-    previousOpponentMove match {
-      case Moves.ROCK     => -1
-      case Moves.PAPER    => 1
-      case Moves.SCISSORS => 0
-    }
+    score(Moves.SCISSORS, previousOpponentMove)
 }
 
 object Helpers {
@@ -105,5 +93,19 @@ object Helpers {
   def randomIn[T](values: Iterable[T]): T = {
     val index = random.nextInt(values.size)
     values.toList(index)
+  }
+
+  def score(me: Moves.Value, opponent: Moves.Value): Double = {
+    (me, opponent) match {
+      case (Moves.ROCK, Moves.ROCK)         => 0
+      case (Moves.ROCK, Moves.PAPER)        => -1
+      case (Moves.ROCK, Moves.SCISSORS)     => 1
+      case (Moves.PAPER, Moves.ROCK)        => 1
+      case (Moves.PAPER, Moves.PAPER)       => 0
+      case (Moves.PAPER, Moves.SCISSORS)    => -1
+      case (Moves.SCISSORS, Moves.ROCK)     => -1
+      case (Moves.SCISSORS, Moves.PAPER)    => 1
+      case (Moves.SCISSORS, Moves.SCISSORS) => 0
+    }
   }
 }
