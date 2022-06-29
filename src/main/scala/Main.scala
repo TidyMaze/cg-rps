@@ -25,8 +25,15 @@ object Player extends App {
         strategiesScores = strategiesScores.map { case (strategy, score) =>
           (strategy, score + strategy.getScore(move))
         }
-        strategiesScores.maxBy(_._2)._1.move(move)
+        strategiesScores.maxBy(_._2) match {
+          case (strategy, score) =>
+            System.err.println(
+              s"Best strategy is ${strategy.getClass.getSimpleName} with score $score"
+            )
+            strategy.move(move)
+        }
       case None =>
+        System.err.println("First turn")
         randomIn(Moves.values)
     }
 
