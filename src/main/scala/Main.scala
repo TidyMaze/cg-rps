@@ -1,4 +1,5 @@
 import Helpers.{random, randomIn, score, whoBeats}
+import Player.opponentHistory
 
 import scala.util._
 import scala.io.StdIn._
@@ -27,15 +28,19 @@ object Player extends App {
 
   var maybeMyLastMove: Option[Moves.Value] = None
 
+  var opponentHistory = List[Moves.Value]()
+
   while (true) {
     val maybePreviousOpponentMove = parse(readLine)
 
-    val myMove = (maybePreviousOpponentMove, maybeMyLastMove) match {
-      case (Some(previousOpponentMove), Some(myLastMove)) =>
+    opponentHistory = opponentHistory ++ maybePreviousOpponentMove
+
+    val myMove = (opponentHistory, maybeMyLastMove) match {
+      case (h, Some(myLastMove)) if h.nonEmpty =>
         strategiesScores = strategiesScores.map { case (strategy, score) =>
           (
             strategy,
-            score + strategy.getScore(previousOpponentMove, myLastMove)
+            score + strategy.getScore(h, myLastMove)
           )
         }
         strategiesScores.maxBy(_._2) match {
@@ -43,7 +48,7 @@ object Player extends App {
             System.err.println(
               s"Best strategy is ${strategy.getClass.getSimpleName} with score $score"
             )
-            strategy.move(previousOpponentMove)
+            strategy.move(opponentHistory)
         }
       case other =>
         System.err.println("First turn")
@@ -63,98 +68,99 @@ object Moves extends Enumeration {
 
 trait Strategy {
   def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double
 
-  def move(previousOpponentMove: Moves.Value): Moves.Value
+  def move(previousOpponentMove: List[Moves.Value]): Moves.Value
 }
 
 class RandomStrategy extends Strategy {
-  override def move(previousOpponentMove: Moves.Value): Moves.Value =
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
     randomIn(Moves.values)
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = 0
 }
 
 class RockStrategy extends Strategy {
-  override def move(previousOpponentMove: Moves.Value): Moves.Value = Moves.ROCK
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    Moves.ROCK
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double =
-    score(Moves.ROCK, previousOpponentMove)
+    score(Moves.ROCK, opponentHistory.last)
 }
 
 class PaperStrategy extends Strategy {
-  override def move(previousOpponentMove: Moves.Value): Moves.Value =
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
     Moves.PAPER
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double =
-    score(Moves.PAPER, previousOpponentMove)
+    score(Moves.PAPER, opponentHistory.last)
 }
 
 class ScissorsStrategy extends Strategy {
-  override def move(previousOpponentMove: Moves.Value): Moves.Value =
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
     Moves.SCISSORS
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double =
-    score(Moves.SCISSORS, previousOpponentMove)
+    score(Moves.SCISSORS, opponentHistory.last)
 }
 
 class CopyOpponentStrategy extends Strategy {
-  override def move(previousOpponentMove: Moves.Value): Moves.Value =
-    previousOpponentMove
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    opponentHistory.last
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = score(
     myLastMove,
-    previousOpponentMove
+    opponentHistory.last
   )
 }
 
 class BeatLastOpponentStrategy extends Strategy {
-  override def move(previousOpponentMove: Moves.Value): Moves.Value =
-    whoBeats(previousOpponentMove)
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    whoBeats(opponentHistory.last)
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = score(
     myLastMove,
-    previousOpponentMove
+    opponentHistory.last
   )
 }
 
 class BeatMostOpponentStrategy extends Strategy {
   var counts = Moves.values.map(_ -> 0).toMap
 
-  override def move(previousOpponentMove: Moves.Value): Moves.Value = {
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value = {
     whoBeats(counts.maxBy(_._2)._1)
   }
 
   override def getScore(
-      previousOpponentMove: Moves.Value,
+      opponentHistory: List[Moves.Value],
       myLastMove: Moves.Value
   ): Double = {
     counts = counts.map { case (move, count) =>
-      (move, count + (if (move == previousOpponentMove) 1 else 0))
+      (move, count + (if (move == opponentHistory.last) 1 else 0))
     }
     score(
       myLastMove,
-      previousOpponentMove
+      opponentHistory.last
     )
   }
 }
