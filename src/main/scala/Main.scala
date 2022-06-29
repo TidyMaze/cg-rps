@@ -1,4 +1,4 @@
-import Helpers.{random, randomIn, score}
+import Helpers.{random, randomIn, score, whoBeats}
 
 import scala.util._
 import scala.io.StdIn._
@@ -10,7 +10,8 @@ object Player extends App {
     new PaperStrategy,
     new ScissorsStrategy,
     new CopyOpponentStrategy,
-    new BeatLastOpponentStrategy
+    new BeatLastOpponentStrategy,
+    new BeatMostOpponentStrategy
   )
 
   def parse(raw: String): Option[Moves.Value] =
@@ -123,11 +124,27 @@ class CopyOpponentStrategy extends Strategy {
 
 class BeatLastOpponentStrategy extends Strategy {
   override def move(previousOpponentMove: Moves.Value): Moves.Value =
-    previousOpponentMove match {
-      case Moves.ROCK     => Moves.PAPER
-      case Moves.PAPER    => Moves.SCISSORS
-      case Moves.SCISSORS => Moves.ROCK
+    whoBeats(previousOpponentMove)
+
+  override def getScore(
+      previousOpponentMove: Moves.Value,
+      myLastMove: Moves.Value
+  ): Double = score(
+    myLastMove,
+    previousOpponentMove
+  )
+}
+
+class BeatMostOpponentStrategy extends Strategy {
+  var counts = Moves.values.map(_ -> 0).toMap
+
+  override def move(previousOpponentMove: Moves.Value): Moves.Value = {
+    counts = counts.map { case (move, count) =>
+      (move, count + (if (move == previousOpponentMove) 1 else 0))
     }
+
+    whoBeats(counts.maxBy(_._2)._1)
+  }
 
   override def getScore(
       previousOpponentMove: Moves.Value,
@@ -157,6 +174,14 @@ object Helpers {
       case (Moves.SCISSORS, Moves.ROCK)     => -1
       case (Moves.SCISSORS, Moves.PAPER)    => 1
       case (Moves.SCISSORS, Moves.SCISSORS) => 0
+    }
+  }
+
+  def whoBeats(move: Moves.Value): Moves.Value = {
+    move match {
+      case Moves.ROCK     => Moves.PAPER
+      case Moves.PAPER    => Moves.SCISSORS
+      case Moves.SCISSORS => Moves.ROCK
     }
   }
 }
