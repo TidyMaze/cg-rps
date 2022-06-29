@@ -114,8 +114,8 @@ class CopyOpponentStrategy extends Strategy {
       previousOpponentMove: Moves.Value,
       myLastMove: Moves.Value
   ): Double = score(
-    previousOpponentMove,
-    myLastMove
+    myLastMove,
+    previousOpponentMove
   )
 }
 
