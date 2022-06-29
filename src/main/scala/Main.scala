@@ -299,10 +299,8 @@ class AloneCircleCounterClockwiseStrategy extends Strategy {
 object Helpers {
   val random = new Random()
 
-  def randomIn[T](values: Iterable[T]): T = {
-    val index = random.nextInt(values.size)
-    values.toList(index)
-  }
+  def randomIn[T](values: Iterable[T]): T =
+    values.toList(random.nextInt(values.size))
 
   def score(me: Moves.Value, opponent: Moves.Value): Double = {
     (me, opponent) match {
@@ -326,7 +324,7 @@ object Helpers {
     }
   }
 
-  def mostOccuring(moves: List[Moves.Value]): Moves.Value = {
+  def mostOccuring(moves: List[Moves.Value]): Moves.Value =
     moves
       .groupBy(identity)
       .map { case (move, moves) =>
@@ -334,5 +332,4 @@ object Helpers {
       }
       .maxBy(_._2)
       ._1
-  }
 }
