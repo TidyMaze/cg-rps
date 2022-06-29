@@ -47,6 +47,11 @@ object Player extends App {
             score + strategy.getScore(h, mh)
           )
         }
+
+        System.err.println(
+          "Strategies scores: " + strategiesScores.toList.sortBy(_._2).reverse
+        )
+
         strategiesScores.maxBy(_._2) match {
           case (strategy, score) =>
             System.err.println(
