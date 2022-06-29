@@ -8,7 +8,8 @@ object Player extends App {
     new RandomStrategy,
     new RockStrategy,
     new PaperStrategy,
-    new ScissorsStrategy
+    new ScissorsStrategy,
+    new CopyOpponentStrategy
   )
 
   def parse(raw: String): Option[Moves.Value] =
