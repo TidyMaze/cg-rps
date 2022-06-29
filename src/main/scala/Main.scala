@@ -61,14 +61,18 @@ class RandomStrategy extends Strategy {
   override def move(previousOpponentMove: Moves.Value): Moves.Value =
     randomIn(Moves.values)
 
-  override def getScore(previousOpponentMove: Moves.Value): Double = 1.0 / 3.0
+  override def getScore(previousOpponentMove: Moves.Value): Double = 0
 }
 
 class RockStrategy extends Strategy {
   override def move(previousOpponentMove: Moves.Value): Moves.Value = Moves.ROCK
 
   override def getScore(previousOpponentMove: Moves.Value): Double =
-    if (previousOpponentMove == Moves.PAPER) 1.0 else 0.0
+    previousOpponentMove match {
+      case Moves.ROCK     => 0
+      case Moves.PAPER    => -1
+      case Moves.SCISSORS => 1
+    }
 }
 
 class PaperStrategy extends Strategy {
@@ -76,7 +80,11 @@ class PaperStrategy extends Strategy {
     Moves.PAPER
 
   override def getScore(previousOpponentMove: Moves.Value): Double =
-    if (previousOpponentMove == Moves.ROCK) 1.0 else 0.0
+    previousOpponentMove match {
+      case Moves.ROCK     => 1
+      case Moves.PAPER    => 0
+      case Moves.SCISSORS => -1
+    }
 }
 
 class ScissorsStrategy extends Strategy {
@@ -84,7 +92,11 @@ class ScissorsStrategy extends Strategy {
     Moves.SCISSORS
 
   override def getScore(previousOpponentMove: Moves.Value): Double =
-    if (previousOpponentMove == Moves.PAPER) 1.0 else 0.0
+    previousOpponentMove match {
+      case Moves.ROCK     => -1
+      case Moves.PAPER    => 1
+      case Moves.SCISSORS => 0
+    }
 }
 
 object Helpers {
