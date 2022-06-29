@@ -1,4 +1,4 @@
-import Helpers.{random, randomIn, score, whoBeats}
+import Helpers.{mostOccuring, random, randomIn, score, whoBeats}
 import Player.opponentHistory
 
 import scala.util._
@@ -146,17 +146,8 @@ class BeatLastOpponentStrategy extends Strategy {
 
 class BeatMostOpponentStrategyAll extends Strategy {
 
-  override def move(opponentHistory: List[Moves.Value]): Moves.Value = {
-    whoBeats(
-      opponentHistory
-        .groupBy(identity)
-        .map { case (move, moves) =>
-          (move, moves.length)
-        }
-        .maxBy(_._2)
-        ._1
-    )
-  }
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    whoBeats(mostOccuring(opponentHistory))
 
   override def getScore(
       opponentHistory: List[Moves.Value],
@@ -195,5 +186,15 @@ object Helpers {
       case Moves.PAPER    => Moves.SCISSORS
       case Moves.SCISSORS => Moves.ROCK
     }
+  }
+
+  def mostOccuring(moves: List[Moves.Value]): Moves.Value = {
+    moves
+      .groupBy(identity)
+      .map { case (move, moves) =>
+        (move, moves.length)
+      }
+      .maxBy(_._2)
+      ._1
   }
 }
