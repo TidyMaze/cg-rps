@@ -31,16 +31,19 @@ object Player extends App {
     val maybePreviousOpponentMove = parse(readLine)
 
     val myMove = (maybePreviousOpponentMove, maybeMyLastMove) match {
-      case (Some(prevousOpponentMove), Some(myLastMove)) =>
+      case (Some(previousOpponentMove), Some(myLastMove)) =>
         strategiesScores = strategiesScores.map { case (strategy, score) =>
-          (strategy, score + strategy.getScore(prevousOpponentMove, myLastMove))
+          (
+            strategy,
+            score + strategy.getScore(previousOpponentMove, myLastMove)
+          )
         }
         strategiesScores.maxBy(_._2) match {
           case (strategy, score) =>
             System.err.println(
               s"Best strategy is ${strategy.getClass.getSimpleName} with score $score"
             )
-            strategy.move(prevousOpponentMove)
+            strategy.move(previousOpponentMove)
         }
       case other =>
         System.err.println("First turn")
