@@ -9,7 +9,8 @@ object Player extends App {
     new RockStrategy,
     new PaperStrategy,
     new ScissorsStrategy,
-    new CopyOpponentStrategy
+    new CopyOpponentStrategy,
+    new BeatLastOpponentStrategy
   )
 
   def parse(raw: String): Option[Moves.Value] =
@@ -110,6 +111,23 @@ class ScissorsStrategy extends Strategy {
 class CopyOpponentStrategy extends Strategy {
   override def move(previousOpponentMove: Moves.Value): Moves.Value =
     previousOpponentMove
+
+  override def getScore(
+      previousOpponentMove: Moves.Value,
+      myLastMove: Moves.Value
+  ): Double = score(
+    myLastMove,
+    previousOpponentMove
+  )
+}
+
+class BeatLastOpponentStrategy extends Strategy {
+  override def move(previousOpponentMove: Moves.Value): Moves.Value =
+    previousOpponentMove match {
+      case Moves.ROCK     => Moves.PAPER
+      case Moves.PAPER    => Moves.SCISSORS
+      case Moves.SCISSORS => Moves.ROCK
+    }
 
   override def getScore(
       previousOpponentMove: Moves.Value,
