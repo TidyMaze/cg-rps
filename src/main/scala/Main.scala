@@ -12,7 +12,10 @@ object Player extends App {
     new ScissorsStrategy,
     new CopyOpponentStrategy,
     new BeatLastOpponentStrategy,
-    new BeatMostOpponentStrategyAll
+    new BeatMostOpponentStrategyAll,
+    new BeatMostOpponentStrategy1,
+    new BeatMostOpponentStrategy2,
+    new BeatMostOpponentStrategy3
   )
 
   def parse(raw: String): Option[Moves.Value] =
@@ -154,6 +157,48 @@ class BeatMostOpponentStrategyAll extends Strategy {
       myLastMove: Moves.Value
   ): Double = score(
     this.move(opponentHistory.init),
+    opponentHistory.last
+  )
+}
+
+class BeatMostOpponentStrategy1 extends Strategy {
+
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    whoBeats(mostOccuring(opponentHistory.take(1)))
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myLastMove: Moves.Value
+  ): Double = score(
+    this.move(opponentHistory.init.take(1)),
+    opponentHistory.last
+  )
+}
+
+class BeatMostOpponentStrategy2 extends Strategy {
+
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    whoBeats(mostOccuring(opponentHistory.take(2)))
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myLastMove: Moves.Value
+  ): Double = score(
+    this.move(opponentHistory.init.take(2)),
+    opponentHistory.last
+  )
+}
+
+class BeatMostOpponentStrategy3 extends Strategy {
+
+  override def move(opponentHistory: List[Moves.Value]): Moves.Value =
+    whoBeats(mostOccuring(opponentHistory.take(3)))
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myLastMove: Moves.Value
+  ): Double = score(
+    this.move(opponentHistory.init.take(3)),
     opponentHistory.last
   )
 }
