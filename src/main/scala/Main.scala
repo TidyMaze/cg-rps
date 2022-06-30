@@ -1,4 +1,12 @@
-import Helpers.{mostOccuring, random, randomIn, score, whoBeats}
+import Helpers.{
+  mostOccuring,
+  nextMove,
+  previousMove,
+  random,
+  randomIn,
+  score,
+  whoBeats
+}
 import Player.opponentHistory
 
 import scala.util._
@@ -17,7 +25,9 @@ object Player extends App {
     new BeatMostOpponentStrategy2,
     new BeatMostOpponentStrategy3,
     new AloneCircleClockwiseStrategy,
-    new AloneCircleCounterClockwiseStrategy
+    new AloneCircleCounterClockwiseStrategy,
+    new OpponentAloneCircleClockwiseStrategy,
+    new OpponentAloneCircleCounterClockwiseStrategy
   )
 
   def parse(raw: String): Option[Moves.Value] =
@@ -268,11 +278,7 @@ class AloneCircleClockwiseStrategy extends Strategy {
       opponentHistory: List[Moves.Value],
       myHistory: List[Moves.Value]
   ): Moves.Value =
-    myHistory.last match {
-      case Moves.ROCK     => Moves.PAPER
-      case Moves.PAPER    => Moves.SCISSORS
-      case Moves.SCISSORS => Moves.ROCK
-    }
+    nextMove(myHistory.last)
 
   override def getScore(
       opponentHistory: List[Moves.Value],
@@ -288,12 +294,39 @@ class AloneCircleCounterClockwiseStrategy extends Strategy {
   override def move(
       opponentHistory: List[Moves.Value],
       myHistory: List[Moves.Value]
-  ): Moves.Value =
-    myHistory.last match {
-      case Moves.ROCK     => Moves.SCISSORS
-      case Moves.PAPER    => Moves.ROCK
-      case Moves.SCISSORS => Moves.PAPER
-    }
+  ): Moves.Value = previousMove(myHistory.last)
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Double = score(
+    this.move(opponentHistory.init, myHistory.init),
+    opponentHistory.last
+  )
+}
+
+class OpponentAloneCircleClockwiseStrategy extends Strategy {
+
+  override def move(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Moves.Value = whoBeats(nextMove(opponentHistory.last))
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Double = score(
+    this.move(opponentHistory.init, myHistory.init),
+    opponentHistory.last
+  )
+}
+
+class OpponentAloneCircleCounterClockwiseStrategy extends Strategy {
+
+  override def move(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Moves.Value = whoBeats(previousMove(opponentHistory.last))
 
   override def getScore(
       opponentHistory: List[Moves.Value],
@@ -324,13 +357,7 @@ object Helpers {
     }
   }
 
-  def whoBeats(move: Moves.Value): Moves.Value = {
-    move match {
-      case Moves.ROCK     => Moves.PAPER
-      case Moves.PAPER    => Moves.SCISSORS
-      case Moves.SCISSORS => Moves.ROCK
-    }
-  }
+  def whoBeats(move: Moves.Value): Moves.Value = nextMove(move)
 
   def mostOccuring(moves: List[Moves.Value]): Moves.Value =
     moves
@@ -340,4 +367,20 @@ object Helpers {
       }
       .maxBy(_._2)
       ._1
+
+  def nextMove(last: Moves.Value): Moves.Value = {
+    last match {
+      case Moves.ROCK     => Moves.PAPER
+      case Moves.PAPER    => Moves.SCISSORS
+      case Moves.SCISSORS => Moves.ROCK
+    }
+  }
+
+  def previousMove(last: Moves.Value): Moves.Value = {
+    last match {
+      case Moves.ROCK     => Moves.SCISSORS
+      case Moves.PAPER    => Moves.ROCK
+      case Moves.SCISSORS => Moves.PAPER
+    }
+  }
 }
