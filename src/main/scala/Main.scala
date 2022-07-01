@@ -384,3 +384,36 @@ object Helpers {
     }
   }
 }
+
+object RPSLearner {
+  def main(args: Array[String]): Unit = {}
+
+  /** All sub lists that match the end of a list.
+    * Exemple:
+    * - Input: List(1, 2, 3, 4, 5)
+    * - Output: List(List(1, 2, 3, 4, 5), List(2, 3, 4, 5), List(3, 4, 5), List(4, 5), List(5))
+    */
+  def getAllCombinationsEnding[T](list: List[T]): List[List[T]] = {
+    list match {
+      case Nil            => Nil
+      case ::(head, next) => (head +: next) +: getAllCombinationsEnding(next)
+    }
+
+  }
+
+  def incrementNode(accTree: Tree, nodePath: List[Moves.Value]): Tree = ???
+
+  def buildHistoryTree(history: List[Moves.Value]): Tree = {
+    val previousTree = buildHistoryTree(history.init)
+    val allCombinationsEnding = getAllCombinationsEnding(history.init)
+    allCombinationsEnding.foldLeft(previousTree) {
+      case (accTree, currentSubList) => incrementNode(accTree, currentSubList)
+    }
+  }
+}
+
+case class Tree(count: Int, children: Map[Moves.Value, Tree])
+
+object Tree {
+  def makeNode(): Unit = Tree(0, Map.empty)
+}
