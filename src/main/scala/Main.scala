@@ -9,6 +9,7 @@ import Helpers.{
 }
 import Player.opponentHistory
 
+import scala.+:
 import scala.util._
 import scala.io.StdIn._
 
@@ -398,16 +399,40 @@ object RPSLearner {
       case Nil            => Nil
       case ::(head, next) => (head +: next) +: getAllCombinationsEnding(next)
     }
-
   }
 
-  def incrementNode(accTree: Tree, nodePath: List[Moves.Value]): Tree = ???
+  /** All sub lists that are contained in list.
+    * Exemple:
+    * - Input: List(1, 2, 3, 4, 5)
+    * - Output: List(List(1), List(1, 2), List(1, 2, 3), List(1, 2, 3, 4), List(1, 2, 3, 4, 5), List(2), List(2, 3), List(2, 3, 4), List(2, 3, 4, 5), List(3), List(3, 4), List(3, 4, 5), List(4), List(4, 5), List(5))
+    */
+  def getAllCombinations[T](list: List[T]): List[List[T]] = {
+    list match {
+      case Nil => Nil
+      case ::(head, next) =>
+        getAllCombinationsEnding(list) ::: getAllCombinations(next)
+    }
+  }
+
+  def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Tree = {
+    nodePath match {
+      case Nil => tree.copy(count = tree.count + 1)
+      case move :: other =>
+        val otherChildren = tree.children.removed(move)
+        val updatedChild = incrementNode(
+          tree.children.getOrElse(move, Tree(0, Map.empty)),
+          other
+        )
+        tree.copy(children = otherChildren + (move -> updatedChild))
+    }
+  }
 
   def buildHistoryTree(history: List[Moves.Value]): Tree = {
-    val previousTree = buildHistoryTree(history.init)
-    val allCombinationsEnding = getAllCombinationsEnding(history.init)
-    allCombinationsEnding.foldLeft(previousTree) {
-      case (accTree, currentSubList) => incrementNode(accTree, currentSubList)
+    val allCombinations = getAllCombinations(history)
+    println("all combinations" + allCombinations)
+    allCombinations.foldLeft(Tree(0, Map.empty)) {
+      case (accTree, currentSubList) =>
+        incrementNode(accTree, currentSubList)
     }
   }
 }
