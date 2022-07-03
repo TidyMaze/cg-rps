@@ -39,12 +39,24 @@ class RPSLearnerTest extends AnyWordSpec {
       assert(
         RPSLearner.getAllCombinations(List(1, 2, 3)) === List(
           List(1),
-          List(2),
-          List(3),
           List(1, 2),
-          List(1, 3),
+          List(1, 2, 3),
+          List(2),
           List(2, 3),
-          List(1, 2, 3)
+          List(3)
+        )
+      )
+    }
+
+    "work when repeated" in {
+      assert(
+        RPSLearner.getAllCombinations(List(1, 2, 1)) === List(
+          List(1),
+          List(1, 2),
+          List(1, 2, 1),
+          List(2),
+          List(2, 1),
+          List(1)
         )
       )
     }
@@ -69,6 +81,24 @@ class RPSLearnerTest extends AnyWordSpec {
           PAPER -> Tree(1, Map()),
           ROCK -> Tree(1, Map(PAPER -> Tree(1, Map())))
         )
+      )
+      assert(result === expected)
+    }
+
+    "work with RPSRPS" in {
+      val result = RPSLearner.buildHistoryTree(
+        List(
+          Moves.ROCK,
+          Moves.PAPER,
+          Moves.SCISSORS,
+          Moves.ROCK,
+          Moves.PAPER,
+          Moves.SCISSORS
+        )
+      )
+      val expected = Tree(
+        0,
+        Map.empty
       )
       assert(result === expected)
     }
