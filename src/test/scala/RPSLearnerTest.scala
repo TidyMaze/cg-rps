@@ -98,7 +98,50 @@ class RPSLearnerTest extends AnyWordSpec {
       )
       val expected = Tree(
         0,
-        Map.empty
+        Map(
+          ROCK -> Tree(
+            2,
+            Map(
+              PAPER -> Tree(
+                2,
+                Map(
+                  SCISSORS -> Tree(
+                    2,
+                    Map(
+                      ROCK -> Tree(
+                        1,
+                        Map(PAPER -> Tree(1, Map(SCISSORS -> Tree(1, Map()))))
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          PAPER -> Tree(
+            2,
+            Map(
+              SCISSORS -> Tree(
+                2,
+                Map(
+                  ROCK -> Tree(
+                    1,
+                    Map(PAPER -> Tree(1, Map(SCISSORS -> Tree(1, Map()))))
+                  )
+                )
+              )
+            )
+          ),
+          SCISSORS -> Tree(
+            2,
+            Map(
+              ROCK -> Tree(
+                1,
+                Map(PAPER -> Tree(1, Map(SCISSORS -> Tree(1, Map()))))
+              )
+            )
+          )
+        )
       )
       assert(result === expected)
     }
