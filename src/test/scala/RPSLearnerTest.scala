@@ -1,3 +1,6 @@
+import Moves.PAPER
+import Moves.ROCK
+import Moves.SCISSORS
 import org.scalatest.wordspec.AnyWordSpec
 
 class RPSLearnerTest extends AnyWordSpec {
@@ -33,13 +36,16 @@ class RPSLearnerTest extends AnyWordSpec {
 
   "getAllCombinations" should {
     "work" in {
-      RPSLearner.getAllCombinations(List(1, 2, 3)) === List(
-        List(1),
-        List(1, 2),
-        List(1, 2, 3),
-        List(2),
-        List(2, 3),
-        List(3)
+      assert(
+        RPSLearner.getAllCombinations(List(1, 2, 3)) === List(
+          List(1),
+          List(2),
+          List(3),
+          List(1, 2),
+          List(1, 3),
+          List(2, 3),
+          List(1, 2, 3)
+        )
       )
     }
   }
@@ -59,7 +65,10 @@ class RPSLearnerTest extends AnyWordSpec {
       val result = RPSLearner.buildHistoryTree(List(Moves.ROCK, Moves.PAPER))
       val expected = Tree(
         0,
-        Map(Moves.ROCK -> Tree(1, Map(Moves.PAPER -> Tree(1, Map.empty))))
+        Map(
+          PAPER -> Tree(1, Map()),
+          ROCK -> Tree(1, Map(PAPER -> Tree(1, Map())))
+        )
       )
       assert(result === expected)
     }

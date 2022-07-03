@@ -406,13 +406,8 @@ object RPSLearner {
     * - Input: List(1, 2, 3, 4, 5)
     * - Output: List(List(1), List(1, 2), List(1, 2, 3), List(1, 2, 3, 4), List(1, 2, 3, 4, 5), List(2), List(2, 3), List(2, 3, 4), List(2, 3, 4, 5), List(3), List(3, 4), List(3, 4, 5), List(4), List(4, 5), List(5))
     */
-  def getAllCombinations[T](list: List[T]): List[List[T]] = {
-    list match {
-      case Nil => Nil
-      case ::(head, next) =>
-        getAllCombinationsEnding(list) ::: getAllCombinations(next)
-    }
-  }
+  def getAllCombinations[T](list: List[T]): List[List[T]] =
+    (1 to list.length).flatMap(i => list.combinations(i)).toList
 
   def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Tree = {
     nodePath match {
