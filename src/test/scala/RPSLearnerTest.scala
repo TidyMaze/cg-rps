@@ -179,7 +179,11 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
         ("input", "expected", "probability"),
         ("rpsrpsrps", Moves.ROCK, 1.0),
         ("psrpsrpsr", Moves.PAPER, 1.0),
-        ("srpsrpsrp", Moves.SCISSORS, 1.0)
+        ("srpsrpsrp", Moves.SCISSORS, 1.0),
+        ("rrppssrrppssr", Moves.ROCK, 0.8),
+        ("rrrrrrrrrr", Moves.ROCK, 1),
+        ("pppppppppp", Moves.PAPER, 1),
+        ("ssssssssss", Moves.SCISSORS, 1)
       )
 
       forAll(cases) { case (input, expected, probability) =>
