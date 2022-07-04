@@ -28,7 +28,8 @@ object Player extends App {
     new AloneCircleClockwiseStrategy,
     new AloneCircleCounterClockwiseStrategy,
     new OpponentAloneCircleClockwiseStrategy,
-    new OpponentAloneCircleCounterClockwiseStrategy
+    new OpponentAloneCircleCounterClockwiseStrategy,
+    new LearnerStrategy
   )
 
   def parse(raw: String): Option[Moves.Value] =
