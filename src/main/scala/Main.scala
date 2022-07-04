@@ -11,6 +11,7 @@ import Moves.{PAPER, ROCK, SCISSORS}
 import Player.opponentHistory
 
 import scala.+:
+import scala.collection.mutable.ListBuffer
 import scala.util._
 import scala.io.StdIn._
 
@@ -428,14 +429,15 @@ object RPSLearner {
     * - Input: List(1, 2, 3, 4, 5)
     * - Output: List(List(1), List(1, 2), List(1, 2, 3), List(1, 2, 3, 4), List(1, 2, 3, 4, 5), List(2), List(2, 3), List(2, 3, 4), List(2, 3, 4, 5), List(3), List(3, 4), List(3, 4, 5), List(4), List(4, 5), List(5))
     */
-  def getAllCombinations[T](list: List[T]): List[List[T]] =
-    list match {
-      case Nil => Nil
-      case head :: tail =>
-        (1 to list.length).map(i => list.take(i)).toList ::: getAllCombinations(
-          tail
-        )
+  def getAllCombinations[T](list: List[T]): List[List[T]] = {
+    var res = ListBuffer[List[T]]()
+    for (from <- 0 to list.length) {
+      for (to <- from + 1 to list.length) {
+        res += list.slice(from, to)
+      }
     }
+    res.toList
+  }
 
   def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Tree = {
     nodePath match {
