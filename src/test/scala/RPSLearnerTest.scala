@@ -222,7 +222,7 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
       for (i <- 1 to 10000) {
         val res = RPSLearner.predict(
           parseInput(
-            "psrrprrsrppsrrrpprrrsprpsrpspsrrpspsrpssrsssppprrssssrrspprsrrppprrrrspssprppsrrrrpsprsppprrsspssrrsrpsrspsrprprr"
+            "ssrrsrspsspprsrssrrsrpprrppssspsrsspppsprpsrpsrsspssprrppsssrrprpppspspsrsprpsrppprprsprpprrrrsrprrpsrsssprrrsrpss"
           )
         )
         println(res)
