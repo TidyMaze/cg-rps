@@ -470,7 +470,7 @@ object RPSLearner {
   ): (Moves.Value, Double) = {
     val nodesToEval = getAllCombinationsEnding(history)
 
-    println("nodes to eval: " + nodesToEval)
+    System.err.println("nodes to eval: " + nodesToEval)
 
     val initialMap = Map(Moves.ROCK -> 0, Moves.PAPER -> 0, Moves.SCISSORS -> 0)
     val movesByCount = nodesToEval.foldLeft(initialMap) { case (acc, path) =>
@@ -479,7 +479,7 @@ object RPSLearner {
       mapSum(acc, childrenCount)
     }
 
-    println("movesByCount: " + movesByCount)
+    System.err.println("movesByCount: " + movesByCount)
 
     val total = movesByCount.values.sum
 
@@ -497,7 +497,7 @@ object RPSLearner {
 
   def predict(history: List[Moves.Value]): (Moves.Value, Double) = {
     val tree = buildHistoryTree(history)
-    println("tree for " + history + ": " + tree)
+    System.err.println("tree for " + history + ": " + tree)
     predictFromTree(tree, history)
   }
 }
