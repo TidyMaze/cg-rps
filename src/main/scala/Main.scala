@@ -62,7 +62,7 @@ object Player extends App {
           )
         }
 
-        System.err.println("Strategies scores:")
+        System.err.println(s"Strategies scores (${strategiesScores.size})")
 
         strategiesScores.toList.sortBy(_._2).reverse.foreach {
           case (strategy, score) =>
