@@ -497,7 +497,15 @@ object RPSLearner {
 
   def predict(history: List[Moves.Value]): (Moves.Value, Double) = {
     val tree = buildHistoryTree(history)
-//    System.err.println("tree for " + history + ": " + tree)
+    System.err.println(
+      "history " + history
+        .map {
+          case Moves.ROCK     => "r"
+          case Moves.PAPER    => "p"
+          case Moves.SCISSORS => "s"
+        }
+        .mkString("")
+    )
     predictFromTree(tree, history)
   }
 }
