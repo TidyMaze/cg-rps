@@ -451,7 +451,7 @@ object RPSLearner {
 
   def buildHistoryTree(history: List[Moves.Value]): Tree = {
     val allCombinations = getAllCombinations(history)
-    println("all combinations" + allCombinations)
+    System.err.println("all combinations" + allCombinations)
     allCombinations.foldLeft(Tree(0, Map.empty)) {
       case (accTree, currentSubList) =>
         incrementNode(accTree, currentSubList)
