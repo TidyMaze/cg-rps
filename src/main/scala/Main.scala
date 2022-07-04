@@ -7,6 +7,7 @@ import Helpers.{
   score,
   whoBeats
 }
+import Moves.{PAPER, ROCK, SCISSORS}
 import Player.opponentHistory
 
 import scala.+:
@@ -439,20 +440,40 @@ object RPSLearner {
   def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Tree = {
     nodePath match {
       case Nil => tree.copy(count = tree.count + 1)
-      case move :: other =>
-        val otherChildren = tree.children.removed(move)
-        val updatedChild = incrementNode(
-          tree.children.getOrElse(move, Tree(0, Map.empty)),
-          other
+      case ROCK :: other =>
+        tree.copy(r =
+          Some(
+            incrementNode(
+              tree.r.getOrElse(Tree(0, None, None, None)),
+              other
+            )
+          )
         )
-        tree.copy(children = otherChildren + (move -> updatedChild))
+      case PAPER :: other =>
+        tree.copy(p =
+          Some(
+            incrementNode(
+              tree.p.getOrElse(Tree(0, None, None, None)),
+              other
+            )
+          )
+        )
+      case SCISSORS :: other =>
+        tree.copy(s =
+          Some(
+            incrementNode(
+              tree.s.getOrElse(Tree(0, None, None, None)),
+              other
+            )
+          )
+        )
     }
   }
 
   def buildHistoryTree(history: List[Moves.Value]): Tree = {
     val allCombinations = getAllCombinations(history)
 //    System.err.println("all combinations" + allCombinations)
-    allCombinations.foldLeft(Tree(0, Map.empty)) {
+    allCombinations.foldLeft(Tree(0, None, None, None)) {
       case (accTree, currentSubList) =>
         incrementNode(accTree, currentSubList)
     }
@@ -474,8 +495,12 @@ object RPSLearner {
 
     val initialMap = Map(Moves.ROCK -> 0, Moves.PAPER -> 0, Moves.SCISSORS -> 0)
     val movesByCount = nodesToEval.foldLeft(initialMap) { case (acc, path) =>
-      val childrenCount =
-        getNodeByPath(tree, path).children.view.mapValues(_.count).toMap
+      val node = getNodeByPath(tree, path)
+      val childrenCount = Map(
+        ROCK -> node.r.map(_.count).getOrElse(0),
+        PAPER -> node.p.map(_.count).getOrElse(0),
+        SCISSORS -> node.s.map(_.count).getOrElse(0)
+      )
       mapSum(acc, childrenCount)
     }
 
@@ -491,8 +516,10 @@ object RPSLearner {
   }
 
   def getNodeByPath(tree: Tree, path: List[Moves.Value]) =
-    path.foldLeft(tree) { case (acc, move) =>
-      acc.children.getOrElse(move, Tree(0, Map.empty))
+    path.foldLeft(tree) {
+      case (acc, ROCK)     => acc.r.getOrElse(Tree(0, None, None, None))
+      case (acc, PAPER)    => acc.p.getOrElse(Tree(0, None, None, None))
+      case (acc, SCISSORS) => acc.s.getOrElse(Tree(0, None, None, None))
     }
 
   def predict(history: List[Moves.Value]): (Moves.Value, Double) = {
@@ -510,8 +537,8 @@ object RPSLearner {
   }
 }
 
-case class Tree(count: Int, children: Map[Moves.Value, Tree])
+case class Tree(count: Int, r: Option[Tree], p: Option[Tree], s: Option[Tree])
 
 object Tree {
-  def makeNode(): Unit = Tree(0, Map.empty)
+  def makeNode(): Unit = Tree(0, None, None, None)
 }

@@ -66,22 +66,21 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
   "buildHistoryTree" should {
     "work with empty history" in {
       val result = RPSLearner.buildHistoryTree(List())
-      assert(result === Tree(0, Map.empty))
+      assert(result === Tree(0, None, None, None))
     }
 
     "work with single history" in {
       val result = RPSLearner.buildHistoryTree(List(Moves.ROCK))
-      assert(result === Tree(0, Map(Moves.ROCK -> Tree(1, Map.empty))))
+      assert(result === Tree(0, Some(Tree(1, None, None, None)), None, None))
     }
 
     "work with history size 2" in {
       val result = RPSLearner.buildHistoryTree(List(Moves.ROCK, Moves.PAPER))
       val expected = Tree(
         0,
-        Map(
-          PAPER -> Tree(1, Map()),
-          ROCK -> Tree(1, Map(PAPER -> Tree(1, Map())))
-        )
+        Some(Tree(1, None, Some(Tree(1, None, None, None)), None)),
+        Some(Tree(1, None, None, None)),
+        None
       )
       assert(result === expected)
     }
@@ -99,48 +98,72 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
       )
       val expected = Tree(
         0,
-        Map(
-          ROCK -> Tree(
+        Some(
+          Tree(
             2,
-            Map(
-              PAPER -> Tree(
+            None,
+            Some(
+              Tree(
                 2,
-                Map(
-                  SCISSORS -> Tree(
+                None,
+                None,
+                Some(
+                  Tree(
                     2,
-                    Map(
-                      ROCK -> Tree(
+                    Some(
+                      Tree(
                         1,
-                        Map(PAPER -> Tree(1, Map(SCISSORS -> Tree(1, Map()))))
+                        None,
+                        Some(
+                          Tree(1, None, None, Some(Tree(1, None, None, None)))
+                        ),
+                        None
                       )
-                    )
+                    ),
+                    None,
+                    None
                   )
                 )
               )
-            )
-          ),
-          PAPER -> Tree(
+            ),
+            None
+          )
+        ),
+        Some(
+          Tree(
             2,
-            Map(
-              SCISSORS -> Tree(
+            None,
+            None,
+            Some(
+              Tree(
                 2,
-                Map(
-                  ROCK -> Tree(
+                Some(
+                  Tree(
                     1,
-                    Map(PAPER -> Tree(1, Map(SCISSORS -> Tree(1, Map()))))
+                    None,
+                    Some(Tree(1, None, None, Some(Tree(1, None, None, None)))),
+                    None
                   )
-                )
+                ),
+                None,
+                None
               )
             )
-          ),
-          SCISSORS -> Tree(
+          )
+        ),
+        Some(
+          Tree(
             2,
-            Map(
-              ROCK -> Tree(
+            Some(
+              Tree(
                 1,
-                Map(PAPER -> Tree(1, Map(SCISSORS -> Tree(1, Map()))))
+                None,
+                Some(Tree(1, None, None, Some(Tree(1, None, None, None)))),
+                None
               )
-            )
+            ),
+            None,
+            None
           )
         )
       )
@@ -150,18 +173,20 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
 
   "increment node" should {
     "work" in {
-      val tree = Tree(0, Map(Moves.ROCK -> Tree(1, Map.empty)))
+      val tree = Tree(0, None, None, None)
       val result = RPSLearner.incrementNode(tree, List(Moves.ROCK))
-      val expected = Tree(0, Map(Moves.ROCK -> Tree(2, Map.empty)))
+      val expected = Tree(0, Some(Tree(1, None, None, None)), None, None)
       assert(result === expected)
     }
 
     "work with new branch" in {
-      val tree = Tree(0, Map(Moves.ROCK -> Tree(1, Map.empty)))
+      val tree = Tree(0, None, None, None)
       val result = RPSLearner.incrementNode(tree, List(Moves.ROCK, Moves.PAPER))
       val expected = Tree(
         0,
-        Map(Moves.ROCK -> Tree(1, Map(Moves.PAPER -> Tree(1, Map.empty))))
+        Some(Tree(0, None, Some(Tree(1, None, None, None)), None)),
+        None,
+        None
       )
       assert(result === expected)
     }
