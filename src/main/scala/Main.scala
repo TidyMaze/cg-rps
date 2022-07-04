@@ -436,6 +436,42 @@ object RPSLearner {
         incrementNode(accTree, currentSubList)
     }
   }
+
+  def mapSum[K: Ordering](a: Map[K, Int], b: Map[K, Int]): Map[K, Int] = {
+    (a.keySet ++ b.keySet).map { key =>
+      (key, a.getOrElse(key, 0) + b.getOrElse(key, 0))
+    }.toMap
+  }
+
+  def predictFromTree(
+      tree: Tree,
+      history: List[Moves.Value]
+  ): (Moves.Value, Double) = {
+    val nodesToEval = getAllCombinationsEnding(history)
+    val initialMap = Map(Moves.ROCK -> 0, Moves.PAPER -> 0, Moves.SCISSORS -> 0)
+    val movesByCount = nodesToEval.foldLeft(initialMap) { case (acc, path) =>
+      val childrenCount =
+        getNodeByPath(tree, path).children.view.mapValues(_.count).toMap
+      mapSum(acc, childrenCount)
+    }
+
+    val total = movesByCount.values.sum
+
+    val best = movesByCount.maxBy { case (move, count) =>
+      count
+    }
+    (best._1, best._2.toDouble / total.toDouble)
+  }
+
+  def getNodeByPath(tree: Tree, path: List[Moves.Value]) =
+    path.foldLeft(tree) { case (acc, move) =>
+      acc.children.getOrElse(move, Tree(0, Map.empty))
+    }
+
+  def predict(history: List[Moves.Value]): (Moves.Value, Double) = {
+    val tree = buildHistoryTree(history)
+    predictFromTree(tree, history)
+  }
 }
 
 case class Tree(count: Int, children: Map[Moves.Value, Tree])

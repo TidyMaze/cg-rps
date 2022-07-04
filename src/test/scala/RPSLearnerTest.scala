@@ -165,4 +165,17 @@ class RPSLearnerTest extends AnyWordSpec {
       assert(result === expected)
     }
   }
+
+  def parseInput(raw: String) = raw.split("").toList.map(_.toUpperCase).map {
+    case "R" => Moves.ROCK
+    case "P" => Moves.PAPER
+    case "S" => Moves.SCISSORS
+  }
+
+  "predict" should {
+    "work with simplest RPS loop" in {
+      val input = parseInput("rpsrpsrps")
+      assert(RPSLearner.predict(input) === (Moves.ROCK, 1.0))
+    }
+  }
 }
