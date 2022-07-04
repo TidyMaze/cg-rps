@@ -177,7 +177,6 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
     "work with simple cases" in {
       val cases = Table(
         ("input", "expected", "probability"),
-        ("rps", Moves.ROCK, 0.33),
         ("rpsrpsrps", Moves.ROCK, 1.0),
         ("psrpsrpsr", Moves.PAPER, 1.0),
         ("srpsrpsrp", Moves.SCISSORS, 1.0)

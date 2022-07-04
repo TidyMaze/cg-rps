@@ -448,6 +448,9 @@ object RPSLearner {
       history: List[Moves.Value]
   ): (Moves.Value, Double) = {
     val nodesToEval = getAllCombinationsEnding(history)
+
+    println("nodes to eval: " + nodesToEval)
+
     val initialMap = Map(Moves.ROCK -> 0, Moves.PAPER -> 0, Moves.SCISSORS -> 0)
     val movesByCount = nodesToEval.foldLeft(initialMap) { case (acc, path) =>
       val childrenCount =
@@ -455,11 +458,14 @@ object RPSLearner {
       mapSum(acc, childrenCount)
     }
 
+    println("movesByCount: " + movesByCount)
+
     val total = movesByCount.values.sum
 
     val best = movesByCount.maxBy { case (move, count) =>
       count
     }
+
     (best._1, best._2.toDouble / total.toDouble)
   }
 
