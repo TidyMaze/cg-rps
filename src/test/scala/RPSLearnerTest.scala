@@ -219,12 +219,15 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
     }
 
     "long test" in {
-      val res = RPSLearner.predict(
-        parseInput(
-          "ssrrsrspsspprsrssrrsrpprrppssspsrsspppsprpsrpsrsspssprrppsssrrprpppspspsrsprpsrppprprsprpprrrrsrprrpsrsssprrrsrpss"
+      for (i <- 1 to 1000) {
+
+        val res = RPSLearner.predict(
+          parseInput(
+            "ssrrsrspsspprsrssrrsrpprrppssspsrsspppsprpsrpsrsspssprrppsssrrprpppspspsrsprpsrppprprsprpprrrrsrprrpsrsssprrrsrpss"
+          )
         )
-      )
-      assert(res === (Moves.PAPER, 0.36363636363636365))
+        assert(res === (Moves.PAPER, 0.36363636363636365))
+      }
     }
   }
 }
