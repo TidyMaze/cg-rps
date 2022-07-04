@@ -470,7 +470,7 @@ object RPSLearner {
   ): (Moves.Value, Double) = {
     val nodesToEval = getAllCombinationsEnding(history)
 
-    System.err.println("nodes to eval: " + nodesToEval)
+//    System.err.println("nodes to eval: " + nodesToEval)
 
     val initialMap = Map(Moves.ROCK -> 0, Moves.PAPER -> 0, Moves.SCISSORS -> 0)
     val movesByCount = nodesToEval.foldLeft(initialMap) { case (acc, path) =>
