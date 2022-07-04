@@ -338,6 +338,26 @@ class OpponentAloneCircleCounterClockwiseStrategy extends Strategy {
   )
 }
 
+class LearnerStrategy extends Strategy {
+  override def move(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Moves.Value = {
+    val (prediction, score) = RPSLearner.predict(opponentHistory)
+    System.err.println(s"Prediction: $prediction, score: $score")
+    whoBeats(prediction)
+  }
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Double =
+    score(
+      this.move(opponentHistory.init, myHistory.init),
+      opponentHistory.last
+    )
+}
+
 object Helpers {
   val random = new Random()
 
