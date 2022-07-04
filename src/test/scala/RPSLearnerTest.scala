@@ -1,9 +1,10 @@
 import Moves.PAPER
 import Moves.ROCK
 import Moves.SCISSORS
+import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 
-class RPSLearnerTest extends AnyWordSpec {
+class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
   "getAllCombinationsEnding" should {
     "work for empty list" in {
       val result = RPSLearner.getAllCombinationsEnding(List.empty)
@@ -173,9 +174,20 @@ class RPSLearnerTest extends AnyWordSpec {
   }
 
   "predict" should {
-    "work with simplest RPS loop" in {
-      val input = parseInput("rpsrpsrps")
-      assert(RPSLearner.predict(input) === (Moves.ROCK, 1.0))
+    "work with simple cases" in {
+      val cases = Table(
+        ("input", "expected", "probability"),
+        ("rps", Moves.ROCK, 0.33),
+        ("rpsrpsrps", Moves.ROCK, 1.0),
+        ("psrpsrpsr", Moves.PAPER, 1.0),
+        ("srpsrpsrp", Moves.SCISSORS, 1.0)
+      )
+
+      forAll(cases) { case (input, expected, probability) =>
+        val result = RPSLearner.predict(parseInput(input))
+        assert(result._1 === expected)
+        assert(result._2 === probability)
+      }
     }
   }
 }
