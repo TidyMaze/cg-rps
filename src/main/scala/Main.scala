@@ -54,15 +54,13 @@ object Player extends App {
     opponentHistory = opponentHistory ++ maybePreviousOpponentMove
 
     val myMove = (opponentHistory, myHistory) match {
-      case (h, mh) if h.length > 1 && myHistory.length > 0 =>
+      case (h, mh) if h.length > 3 && mh.length > 3 =>
         strategiesScores = strategiesScores.map { case (strategy, score) =>
-          (
-            strategy,
-            score + strategy.getScore(h, mh)
-          )
+          (strategy, score + strategy.getScore(h, mh))
         }
 
         System.err.println(s"Strategies scores (${strategiesScores.size})")
+        System.err.println(strategiesScores)
 
         strategiesScores.toList.sortBy(_._2).reverse.foreach {
           case (strategy, score) =>
