@@ -439,36 +439,25 @@ object RPSLearner {
     res.toList
   }
 
-  def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Tree = {
+  def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Unit = {
     nodePath match {
-      case Nil => tree.copy(count = tree.count + 1)
+      case Nil =>
+        tree.count += 1
       case ROCK :: other =>
-        tree.copy(r =
-          Some(
-            incrementNode(
-              tree.r.getOrElse(Tree(0, None, None, None)),
-              other
-            )
-          )
-        )
+        if (tree.r.isEmpty) {
+          tree.r = Some(Tree(0, None, None, None))
+        }
+        incrementNode(tree.r.get, other)
       case PAPER :: other =>
-        tree.copy(p =
-          Some(
-            incrementNode(
-              tree.p.getOrElse(Tree(0, None, None, None)),
-              other
-            )
-          )
-        )
+        if (tree.p.isEmpty) {
+          tree.p = Some(Tree(0, None, None, None))
+        }
+        incrementNode(tree.p.get, other)
       case SCISSORS :: other =>
-        tree.copy(s =
-          Some(
-            incrementNode(
-              tree.s.getOrElse(Tree(0, None, None, None)),
-              other
-            )
-          )
-        )
+        if (tree.s.isEmpty) {
+          tree.s = Some(Tree(0, None, None, None))
+        }
+        incrementNode(tree.s.get, other)
     }
   }
 
@@ -478,6 +467,7 @@ object RPSLearner {
     allCombinations.foldLeft(Tree(0, None, None, None)) {
       case (accTree, currentSubList) =>
         incrementNode(accTree, currentSubList)
+        accTree
     }
   }
 
@@ -539,7 +529,12 @@ object RPSLearner {
   }
 }
 
-case class Tree(count: Int, r: Option[Tree], p: Option[Tree], s: Option[Tree])
+case class Tree(
+    var count: Int,
+    var r: Option[Tree],
+    var p: Option[Tree],
+    var s: Option[Tree]
+)
 
 object Tree {
   def makeNode(): Unit = Tree(0, None, None, None)

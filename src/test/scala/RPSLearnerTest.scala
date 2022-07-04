@@ -174,21 +174,21 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
   "increment node" should {
     "work" in {
       val tree = Tree(0, None, None, None)
-      val result = RPSLearner.incrementNode(tree, List(Moves.ROCK))
+      RPSLearner.incrementNode(tree, List(Moves.ROCK))
       val expected = Tree(0, Some(Tree(1, None, None, None)), None, None)
-      assert(result === expected)
+      assert(tree === expected)
     }
 
     "work with new branch" in {
       val tree = Tree(0, None, None, None)
-      val result = RPSLearner.incrementNode(tree, List(Moves.ROCK, Moves.PAPER))
+      RPSLearner.incrementNode(tree, List(Moves.ROCK, Moves.PAPER))
       val expected = Tree(
         0,
         Some(Tree(0, None, Some(Tree(1, None, None, None)), None)),
         None,
         None
       )
-      assert(result === expected)
+      assert(tree === expected)
     }
   }
 
