@@ -48,7 +48,7 @@ object Player extends App {
   var myHistory = List[Move]()
 
   while (true) {
-    val maybePreviousOpponentMove = parse(readLine)
+    val maybePreviousOpponentMove = parse(readLine())
 
     opponentHistory = opponentHistory ++ maybePreviousOpponentMove
 
