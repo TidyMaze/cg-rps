@@ -87,7 +87,7 @@ object Player extends App {
   }
 }
 
-trait Move
+sealed trait Move
 case object ROCK extends Move
 case object PAPER extends Move
 case object SCISSORS extends Move
