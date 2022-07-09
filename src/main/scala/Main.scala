@@ -7,8 +7,11 @@ import Helpers.{
   score,
   whoBeats
 }
+import Moves.{PAPER, ROCK, SCISSORS}
 import Player.opponentHistory
 
+import scala.+:
+import scala.collection.mutable.ListBuffer
 import scala.util._
 import scala.io.StdIn._
 
@@ -27,7 +30,8 @@ object Player extends App {
     new AloneCircleClockwiseStrategy,
     new AloneCircleCounterClockwiseStrategy,
     new OpponentAloneCircleClockwiseStrategy,
-    new OpponentAloneCircleCounterClockwiseStrategy
+    new OpponentAloneCircleCounterClockwiseStrategy,
+    new LearnerStrategy
   )
 
   def parse(raw: String): Option[Moves.Value] =
@@ -50,7 +54,7 @@ object Player extends App {
     opponentHistory = opponentHistory ++ maybePreviousOpponentMove
 
     val myMove = (opponentHistory, myHistory) match {
-      case (h, mh) if h.length > 1 && myHistory.length > 0 =>
+      case (h, mh) if h.length > 3 && mh.length > 3 =>
         strategiesScores = strategiesScores.map { case (strategy, score) =>
           (
             strategy,
@@ -58,7 +62,8 @@ object Player extends App {
           )
         }
 
-        System.err.println("Strategies scores:")
+        System.err.println(s"Strategies scores (${strategiesScores.size})")
+        System.err.println(strategiesScores)
 
         strategiesScores.toList.sortBy(_._2).reverse.foreach {
           case (strategy, score) =>
@@ -337,6 +342,26 @@ class OpponentAloneCircleCounterClockwiseStrategy extends Strategy {
   )
 }
 
+class LearnerStrategy extends Strategy {
+  override def move(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Moves.Value = {
+    val (prediction, score) = RPSLearner.predict(opponentHistory)
+    System.err.println(s"Prediction: $prediction, score: $score")
+    whoBeats(prediction)
+  }
+
+  override def getScore(
+      opponentHistory: List[Moves.Value],
+      myHistory: List[Moves.Value]
+  ): Double =
+    score(
+      this.move(opponentHistory.init, myHistory.init),
+      opponentHistory.last
+    )
+}
+
 object Helpers {
   val random = new Random()
 
@@ -383,4 +408,135 @@ object Helpers {
       case Moves.SCISSORS => Moves.PAPER
     }
   }
+}
+
+object RPSLearner {
+  def main(args: Array[String]): Unit = {}
+
+  /** All sub lists that match the end of a list.
+    * Exemple:
+    * - Input: List(1, 2, 3, 4, 5)
+    * - Output: List(List(1, 2, 3, 4, 5), List(2, 3, 4, 5), List(3, 4, 5), List(4, 5), List(5))
+    */
+  def getAllCombinationsEnding[T](list: List[T]): List[List[T]] = {
+    list match {
+      case Nil            => Nil
+      case ::(head, next) => (head +: next) +: getAllCombinationsEnding(next)
+    }
+  }
+
+  /** All sub lists that are contained in list.
+    * Exemple:
+    * - Input: List(1, 2, 3, 4, 5)
+    * - Output: List(List(1), List(1, 2), List(1, 2, 3), List(1, 2, 3, 4), List(1, 2, 3, 4, 5), List(2), List(2, 3), List(2, 3, 4), List(2, 3, 4, 5), List(3), List(3, 4), List(3, 4, 5), List(4), List(4, 5), List(5))
+    */
+  def getAllCombinations[T](list: List[T]): List[List[T]] = {
+    var res = ListBuffer[List[T]]()
+    for (from <- 0 to list.length) {
+      for (to <- from + 1 to list.length) {
+        res += list.slice(from, to)
+      }
+    }
+    res.toList
+  }
+
+  def incrementNode(tree: Tree, nodePath: List[Moves.Value]): Unit = {
+    nodePath match {
+      case Nil =>
+        tree.count += 1
+      case ROCK :: other =>
+        if (tree.r.isEmpty) {
+          tree.r = Some(Tree(0, None, None, None))
+        }
+        incrementNode(tree.r.get, other)
+      case PAPER :: other =>
+        if (tree.p.isEmpty) {
+          tree.p = Some(Tree(0, None, None, None))
+        }
+        incrementNode(tree.p.get, other)
+      case SCISSORS :: other =>
+        if (tree.s.isEmpty) {
+          tree.s = Some(Tree(0, None, None, None))
+        }
+        incrementNode(tree.s.get, other)
+    }
+  }
+
+  def buildHistoryTree(history: List[Moves.Value]): Tree = {
+    val allCombinations = getAllCombinations(history)
+//    System.err.println("all combinations" + allCombinations)
+    allCombinations.foldLeft(Tree(0, None, None, None)) {
+      case (accTree, currentSubList) =>
+        incrementNode(accTree, currentSubList)
+        accTree
+    }
+  }
+
+  def mapSum[K: Ordering](a: Map[K, Int], b: Map[K, Int]): Map[K, Int] = {
+    (a.keySet ++ b.keySet).map { key =>
+      (key, a.getOrElse(key, 0) + b.getOrElse(key, 0))
+    }.toMap
+  }
+
+  def predictFromTree(
+      tree: Tree,
+      history: List[Moves.Value]
+  ): (Moves.Value, Double) = {
+    val nodesToEval = getAllCombinationsEnding(history)
+
+//    System.err.println("nodes to eval: " + nodesToEval)
+
+    val initialMap = Map(Moves.ROCK -> 0, Moves.PAPER -> 0, Moves.SCISSORS -> 0)
+    val movesByCount = nodesToEval.foldLeft(initialMap) { case (acc, path) =>
+      val node = getNodeByPath(tree, path)
+      val childrenCount = Map(
+        ROCK -> node.r.map(_.count).getOrElse(0),
+        PAPER -> node.p.map(_.count).getOrElse(0),
+        SCISSORS -> node.s.map(_.count).getOrElse(0)
+      )
+      mapSum(acc, childrenCount)
+    }
+
+    System.err.println("movesByCount: " + movesByCount)
+
+    val total = movesByCount.values.sum
+
+    val best = movesByCount.maxBy { case (move, count) =>
+      count
+    }
+
+    (best._1, best._2.toDouble / total.toDouble)
+  }
+
+  def getNodeByPath(tree: Tree, path: List[Moves.Value]) =
+    path.foldLeft(tree) {
+      case (acc, ROCK)     => acc.r.getOrElse(Tree(0, None, None, None))
+      case (acc, PAPER)    => acc.p.getOrElse(Tree(0, None, None, None))
+      case (acc, SCISSORS) => acc.s.getOrElse(Tree(0, None, None, None))
+    }
+
+  def predict(history: List[Moves.Value]): (Moves.Value, Double) = {
+    System.err.println(
+      "history " + history
+        .map {
+          case Moves.ROCK     => "r"
+          case Moves.PAPER    => "p"
+          case Moves.SCISSORS => "s"
+        }
+        .mkString("")
+    )
+    val tree = buildHistoryTree(history)
+    predictFromTree(tree, history)
+  }
+}
+
+case class Tree(
+    var count: Int,
+    var r: Option[Tree],
+    var p: Option[Tree],
+    var s: Option[Tree]
+)
+
+object Tree {
+  def makeNode(): Unit = Tree(0, None, None, None)
 }
