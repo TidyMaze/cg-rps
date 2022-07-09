@@ -1,6 +1,3 @@
-import Moves.PAPER
-import Moves.ROCK
-import Moves.SCISSORS
 import org.scalatest.prop.TableDrivenPropertyChecks
 import org.scalatest.wordspec.AnyWordSpec
 
@@ -70,12 +67,12 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
     }
 
     "work with single history" in {
-      val result = RPSLearner.buildHistoryTree(List(Moves.ROCK))
+      val result = RPSLearner.buildHistoryTree(List(ROCK))
       assert(result === Tree(0, Some(Tree(1, None, None, None)), None, None))
     }
 
     "work with history size 2" in {
-      val result = RPSLearner.buildHistoryTree(List(Moves.ROCK, Moves.PAPER))
+      val result = RPSLearner.buildHistoryTree(List(ROCK, PAPER))
       val expected = Tree(
         0,
         Some(Tree(1, None, Some(Tree(1, None, None, None)), None)),
@@ -88,12 +85,12 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
     "work with RPSRPS" in {
       val result = RPSLearner.buildHistoryTree(
         List(
-          Moves.ROCK,
-          Moves.PAPER,
-          Moves.SCISSORS,
-          Moves.ROCK,
-          Moves.PAPER,
-          Moves.SCISSORS
+          ROCK,
+          PAPER,
+          SCISSORS,
+          ROCK,
+          PAPER,
+          SCISSORS
         )
       )
       val expected = Tree(
@@ -174,14 +171,14 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
   "increment node" should {
     "work" in {
       val tree = Tree(0, None, None, None)
-      RPSLearner.incrementNode(tree, List(Moves.ROCK))
+      RPSLearner.incrementNode(tree, List(ROCK))
       val expected = Tree(0, Some(Tree(1, None, None, None)), None, None)
       assert(tree === expected)
     }
 
     "work with new branch" in {
       val tree = Tree(0, None, None, None)
-      RPSLearner.incrementNode(tree, List(Moves.ROCK, Moves.PAPER))
+      RPSLearner.incrementNode(tree, List(ROCK, PAPER))
       val expected = Tree(
         0,
         Some(Tree(0, None, Some(Tree(1, None, None, None)), None)),
@@ -193,22 +190,22 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
   }
 
   def parseInput(raw: String) = raw.split("").toList.map(_.toUpperCase).map {
-    case "R" => Moves.ROCK
-    case "P" => Moves.PAPER
-    case "S" => Moves.SCISSORS
+    case "R" => ROCK
+    case "P" => PAPER
+    case "S" => SCISSORS
   }
 
   "predict" should {
     "work with simple cases" in {
       val cases = Table(
         ("input", "expected", "probability"),
-        ("rpsrpsrps", Moves.ROCK, 1.0),
-        ("psrpsrpsr", Moves.PAPER, 1.0),
-        ("srpsrpsrp", Moves.SCISSORS, 1.0),
-        ("rrppssrrppssr", Moves.ROCK, 0.8),
-        ("rrrrrrrrrr", Moves.ROCK, 1),
-        ("pppppppppp", Moves.PAPER, 1),
-        ("ssssssssss", Moves.SCISSORS, 1)
+        ("rpsrpsrps", ROCK, 1.0),
+        ("psrpsrpsr", PAPER, 1.0),
+        ("srpsrpsrp", SCISSORS, 1.0),
+        ("rrppssrrppssr", ROCK, 0.8),
+        ("rrrrrrrrrr", ROCK, 1),
+        ("pppppppppp", PAPER, 1),
+        ("ssssssssss", SCISSORS, 1)
       )
 
       forAll(cases) { case (input, expected, probability) =>
@@ -226,7 +223,7 @@ class RPSLearnerTest extends AnyWordSpec with TableDrivenPropertyChecks {
             "ssrrsrspsspprsrssrrsrpprrppssspsrsspppsprpsrpsrsspssprrppsssrrprpppspspsrsprpsrppprprsprpprrrrsrprrpsrsssprrrsrpss"
           )
         )
-        assert(res === (Moves.PAPER, 0.36363636363636365))
+        assert(res === (PAPER, 0.36363636363636365))
       }
     }
   }
